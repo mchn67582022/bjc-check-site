@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>保健品AI自查 - 拍照就知道</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#43A047;--green-dark:#2E7D32;--green-light:#E8F5E9;--red:#E53935;--red-light:#FFEBEE;--orange:#FB8C00;--orange-light:#FFF3E0;--blue:#1565C0;--blue-light:#E3F2FD;--bg:#f7f8fa;--card:#fff;--text:#1a1a1a;--text2:#666;--text3:#999;--radius:12px;--shadow:0 2px 12px rgba(0,0,0,.08)}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+.page{display:none;min-height:100vh;padding:20px 16px 40px;max-width:480px;margin:0 auto}
+.page.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:25px;font-size:16px;font-weight:bold;cursor:pointer;text-align:center;transition:all .2s}
+.btn-primary{background:var(--green);color:#fff;box-shadow:0 4px 12px rgba(67,160,71,.3)}
+.btn-primary:active{background:var(--green-dark);transform:scale(.97)}
+.btn-primary:disabled{background:#ccc;box-shadow:none;cursor:not-allowed}
+.btn-outline{background:#fff;color:var(--green);border:2px solid var(--green)}
+.card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.input-group{margin-bottom:16px}
+.input-group label{display:block;font-size:14px;font-weight:bold;margin-bottom:8px;color:var(--text)}
+.input-group input{width:100%;padding:12px 16px;border:2px solid #e0e0e0;border-radius:8px;font-size:16px;outline:none;transition:border .2s}
+.input-group input:focus{border-color:var(--green)}
+.agreement{font-size:12px;color:var(--text3);margin-top:12px;text-align:center}
+.agreement a{color:var(--green)}
+
+/* Landing */
+.hero{text-align:center;padding:30px 0 20px}
+.hero-icon{font-size:56px;margin-bottom:12px}
+.hero h1{font-size:24px;font-weight:bold;line-height:1.4;margin-bottom:10px}
+.hero h1 span{color:var(--green)}
+.hero p{font-size:15px;color:var(--text2);line-height:1.8}
+.stats{display:flex;gap:8px;margin:20px 0}
+.stat{flex:1;text-align:center;padding:14px 6px;background:var(--red-light);border-radius:var(--radius)}
+.stat-num{font-size:24px;font-weight:bold;color:var(--red)}
+.stat-label{font-size:11px;color:var(--text2);margin-top:2px}
+.how-it-works{margin:24px 0}
+.how-it-works h2{font-size:17px;margin-bottom:16px;text-align:center}
+.steps-row{display:flex;gap:10px;text-align:center}
+.step-item{flex:1;background:var(--card);border-radius:var(--radius);padding:16px 8px;box-shadow:var(--shadow)}
+.step-icon{font-size:28px;margin-bottom:6px}
+.step-num{width:28px;height:28px;background:var(--green);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;margin-bottom:6px}
+.step-item p{font-size:13px;color:var(--text2);line-height:1.4}
+.step-item .step-main{font-size:14px;font-weight:bold;color:var(--text)}
+.user-count{text-align:center;margin-top:16px;font-size:13px;color:var(--text3)}
+.user-count strong{color:var(--green-dark)}
+
+/* Register */
+.reg-header{text-align:center;padding:24px 0}
+.reg-header h2{font-size:22px;margin-bottom:6px}
+.reg-header p{color:var(--text2);font-size:14px}
+
+/* Photo Upload */
+.photo-header{text-align:center;padding:16px 0}
+.photo-header h2{font-size:20px;margin-bottom:4px}
+.photo-header p{color:var(--text2);font-size:14px}
+.photo-slots{margin:16px 0}
+.photo-slot{display:flex;align-items:center;gap:14px;padding:16px;background:var(--card);border-radius:var(--radius);margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;position:relative;overflow:hidden;transition:all .2s;border:2px solid transparent}
+.photo-slot:hover{border-color:var(--green)}
+.photo-slot.done{border-color:var(--green);background:var(--green-light)}
+.photo-slot-icon{font-size:32px;flex-shrink:0;width:48px;text-align:center}
+.photo-slot-info{flex:1}
+.photo-slot-info .title{font-size:15px;font-weight:bold;margin-bottom:2px}
+.photo-slot-info .desc{font-size:12px;color:var(--text3)}
+.photo-slot-status{flex-shrink:0;font-size:13px;font-weight:bold}
+.photo-slot-status.pending{color:var(--orange)}
+.photo-slot-status.uploaded{color:var(--green-dark)}
+.photo-slot-preview{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:.15;pointer-events:none}
+.photo-slot.done .photo-slot-preview{opacity:.12}
+.photo-tips{padding:14px;background:var(--blue-light);border-radius:8px;font-size:13px;color:var(--text2);line-height:1.7}
+.photo-tips strong{color:var(--blue)}
+.upload-counter{text-align:center;margin:16px 0;font-size:15px;color:var(--text2)}
+.upload-counter strong{color:var(--green-dark);font-size:20px}
+
+/* Analyzing */
+.analyze-wrap{text-align:center;padding:60px 20px}
+.analyze-spinner{width:80px;height:80px;border:4px solid #e0e0e0;border-top:4px solid var(--green);border-radius:50%;margin:0 auto 24px;animation:spin 1s linear infinite}
+.analyze-wrap h2{font-size:20px;margin-bottom:8px}
+.analyze-wrap .sub{color:var(--text2);font-size:14px;margin-bottom:24px}
+.analyze-steps{text-align:left;max-width:320px;margin:0 auto}
+.analyze-step{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:14px;color:var(--text3);transition:all .3s}
+.analyze-step.active{color:var(--text);font-weight:bold}
+.analyze-step.done{color:var(--green-dark)}
+.analyze-step .dot{width:24px;height:24px;border-radius:50%;border:2px solid #e0e0e0;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;transition:all .3s}
+.analyze-step.active .dot{border-color:var(--green);animation:pulse 1s infinite}
+.analyze-step.done .dot{background:var(--green);border-color:var(--green);color:#fff}
+.analyze-progress{margin-top:24px;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden}
+.analyze-progress-bar{height:100%;background:var(--green);border-radius:3px;transition:width .5s ease;width:0}
+
+/* Result */
+.result-header{text-align:center;padding:16px 0}
+.result-circle{width:110px;height:110px;border-radius:50%;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px;color:#fff}
+.result-circle.safe{background:var(--green)}
+.result-circle.caution{background:var(--orange)}
+.result-circle.danger{background:var(--red)}
+.result-circle .score{font-size:36px;font-weight:bold;line-height:1}
+.result-circle .score-label{font-size:12px;margin-top:2px;opacity:.9}
+.result-header h2{font-size:20px;margin-bottom:4px}
+.result-header p{color:var(--text2);font-size:14px}
+.result-section{margin:16px 0}
+.result-section-title{font-size:15px;font-weight:bold;padding:8px 12px;border-left:4px solid var(--green);margin-bottom:8px}
+.result-section-title.red{border-left-color:var(--red)}
+.result-section-title.orange{border-left-color:var(--orange)}
+.result-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;font-size:14px}
+.result-item:last-child{border-bottom:none}
+.result-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.result-dot.green{background:var(--green)}
+.result-dot.red{background:var(--red)}
+.result-dot.orange{background:var(--orange)}
+.result-item p{flex:1;line-height:1.5}
+.result-item .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:bold;margin-left:4px}
+.tag-red{background:var(--red-light);color:var(--red)}
+.tag-green{background:var(--green-light);color:var(--green-dark)}
+.tag-orange{background:var(--orange-light);color:var(--orange)}
+.result-cta{margin:20px 0;padding:20px;background:linear-gradient(135deg,var(--green-light),#C8E6C9);border-radius:var(--radius);text-align:center}
+.result-cta h3{font-size:16px;color:var(--green-dark);margin-bottom:6px}
+.result-cta p{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6}
+.tips-box{background:var(--orange-light);border-left:4px solid var(--orange);padding:14px 16px;border-radius:0 8px 8px 0;margin:16px 0;font-size:13px;color:var(--text2);line-height:1.7}
+.tips-box strong{color:var(--orange)}
+.footer-disclaimer{font-size:11px;color:var(--text3);text-align:center;margin:20px 0;line-height:1.6}
+.share-bar{display:flex;gap:10px;margin:16px 0}
+.share-bar .btn{flex:1;padding:12px;font-size:14px}
+</style>
+</head>
+<body>
+
+<!-- Page 1: Landing -->
+<div class="page active" id="page-landing">
+  <div class="hero">
+    <div class="hero-icon">🔍💊</div>
+    <h1>拍3张照片<br><span>AI秒查</span>你的保健品</h1>
+    <p>不用自己查，AI帮你识别瓶身信息<br>自动核查认证、成分、合规性</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">83%</div>
+      <div class="stat-label">网红鱼油不合格率</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">72%</div>
+      <div class="stat-label">假洋牌占比</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">32.7%</div>
+      <div class="stat-label">无正规备案</div>
+    </div>
+  </div>
+
+  <div class="how-it-works">
+    <h2>怎么查？</h2>
+    <div class="steps-row">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-icon">📱</div>
+        <p class="step-main">拍照</p>
+        <p>瓶身+标志+配料表</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-icon">🤖</div>
+        <p class="step-main">AI分析</p>
+        <p>自动识别+核查比对</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-icon">📊</div>
+        <p class="step-main">出结果</p>
+        <p>安全评分+风险提醒</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="goPage('page-register')">免费拍照自查</button>
+  <p class="user-count">已有 <strong id="userCount">12,847</strong> 人完成AI自查</p>
+</div>
+
+<!-- Page 2: Register (phone only) -->
+<div class="page" id="page-register">
+  <div class="reg-header">
+    <h2>免费开始自查</h2>
+    <p>输入手机号，接收分析结果</p>
+  </div>
+
+  <div class="card">
+    <div class="input-group">
+      <label>手机号</label>
+      <input type="tel" id="phone" placeholder="请输入手机号" maxlength="11" style="font-size:18px;letter-spacing:2px">
+    </div>
+    <div class="input-group">
+      <label>称呼</label>
+      <input type="text" id="userName" placeholder="怎么称呼您（选填）">
+    </div>
+    <button class="btn btn-primary" onclick="doRegister()">立即开始自查</button>
+  </div>
+
+  <p class="agreement">注册即同意 <a href="javascript:void(0)">《用户协议》</a> 和 <a href="javascript:void(0)">《隐私政策》</a></p>
+</div>
+
+<!-- Page 3: Photo Upload (3 photos) -->
+<div class="page" id="page-photo">
+  <div class="photo-header">
+    <h2>📸 拍3张照片</h2>
+    <p>拍得越清楚，AI分析越准确</p>
+  </div>
+
+  <div class="photo-slots">
+    <!-- Photo 1: Product Front -->
+    <div class="photo-slot" id="slot1" onclick="triggerCamera(1)">
+      <img class="photo-slot-preview" id="preview1" style="display:none">
+      <div class="photo-slot-icon">🥇</div>
+      <div class="photo-slot-info">
+        <div class="title">瓶身正面</div>
+        <div class="desc">品牌名、产品名、产地信息</div>
+      </div>
+      <div class="photo-slot-status pending" id="status1">待拍照</div>
+      <input type="file" id="camera1" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(1,this)">
+    </div>
+
+    <!-- Photo 2: Labels/Certifications -->
+    <div class="photo-slot" id="slot2" onclick="triggerCamera(2)">
+      <img class="photo-slot-preview" id="preview2" style="display:none">
+      <div class="photo-slot-icon">🏷️</div>
+      <div class="photo-slot-info">
+        <div class="title">认证标志面</div>
+        <div class="desc">FDA/NSF/TGA/蓝帽子等所有标志</div>
+      </div>
+      <div class="photo-slot-status pending" id="status2">待拍照</div>
+      <input type="file" id="camera2" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(2,this)">
+    </div>
+
+    <!-- Photo 3: Ingredient List -->
+    <div class="photo-slot" id="slot3" onclick="triggerCamera(3)">
+      <img class="photo-slot-preview" id="preview3" style="display:none">
+      <div class="photo-slot-icon">📋</div>
+      <div class="photo-slot-info">
+        <div class="title">配料表/备案号</div>
+        <div class="desc">成分表、含量、备案号、生产商</div>
+      </div>
+      <div class="photo-slot-status pending" id="status3">待拍照</div>
+      <input type="file" id="camera3" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(3,this)">
+    </div>
+  </div>
+
+  <div class="upload-counter" id="uploadCounter">已上传 <strong>0</strong> / 3 张</div>
+
+  <div class="photo-tips">
+    <strong>💡 拍照技巧：</strong><br>
+    ① 把瓶子放在白纸/桌面上，标签朝上<br>
+    ② 光线充足，避免反光和阴影<br>
+    ③ 文字尽量拍正，越清晰AI识别越准<br>
+    ④ 没拍好可以点对应项重新拍
+  </div>
+
+  <button class="btn btn-primary" id="analyzeBtn" onclick="startAnalysis()" disabled style="margin-top:16px">🤖 AI开始分析</button>
+  <p style="text-align:center;margin-top:8px;font-size:12px;color:var(--text3)">至少拍1张即可开始分析，3张全拍结果更准</p>
+</div>
+
+<!-- Page 4: AI Analyzing -->
+<div class="page" id="page-analyzing">
+  <div class="analyze-wrap">
+    <div class="analyze-spinner"></div>
+    <h2>AI正在分析你的保健品</h2>
+    <p class="sub">正在识别瓶身信息并交叉核查</p>
+
+    <div class="analyze-steps">
+      <div class="analyze-step active" id="as1">
+        <div class="dot">1</div>
+        <span>识别瓶身品牌与产品信息…</span>
+      </div>
+      <div class="analyze-step" id="as2">
+        <div class="dot">2</div>
+        <span>核查认证标志真伪…</span>
+      </div>
+      <div class="analyze-step" id="as3">
+        <div class="dot">3</div>
+        <span>比对配料成分与备案信息…</span>
+      </div>
+      <div class="analyze-step" id="as4">
+        <div class="dot">4</div>
+        <span>交叉验证国内外数据库…</span>
+      </div>
+      <div class="analyze-step" id="as5">
+        <div class="dot">5</div>
+        <span>生成安全评估报告…</span>
+      </div>
+    </div>
+
+    <div class="analyze-progress">
+      <div class="analyze-progress-bar" id="analyzeBar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Page 5: Result -->
+<div class="page" id="page-result">
+  <div class="result-header">
+    <div class="result-circle" id="resultCircle">
+      <div class="score" id="resultScore">--</div>
+      <div class="score-label" id="resultLabel">安全指数</div>
+    </div>
+    <h2 id="resultTitle">分析完成</h2>
+    <p id="resultSubtitle"></p>
+  </div>
+
+  <div id="resultContent"></div>
+
+  <div class="result-cta">
+    <h3>📋 想要详细版深度核查报告？</h3>
+    <p>专业团队人工复核，逐项给出书面分析<br>含认证查询链接+操作步骤+替代建议</p>
+    <button class="btn btn-primary" onclick="goPage('page-landing')" style="max-width:260px;margin:0 auto">留言9，领取深度报告</button>
+  </div>
+
+  <div class="tips-box">
+    <strong>⚠️ 温馨提示：</strong>AI分析基于图像识别，可能存在识别偏差。结果仅供参考，不构成消费建议。保健品不能代替药物，个体存在差异，如有健康问题请遵医嘱。
+  </div>
+
+  <div class="share-bar">
+    <button class="btn btn-outline" onclick="shareResult()">📤 分享给家人</button>
+    <button class="btn btn-primary" onclick="goPage('page-photo')">🔍 再查一个</button>
+  </div>
+
+  <div class="footer-disclaimer">
+    数据来源：国家市场监管总局、国家药监局、FDA DSHEA法案、NSF国际、澳洲TGA等公开法规和认证标准。<br>
+    本工具由 AI应用实践家 团队开发，仅供科普参考。
+  </div>
+</div>
+
+<script>
+// ====== State ======
+const photos = { 1: null, 2: null, 3: null };
+const photoLabels = { 1: '瓶身正面', 2: '认证标志面', 3: '配料表/备案号' };
+
+// ====== Navigation ======
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ====== Register ======
+function doRegister() {
+  const phone = document.getElementById('phone').value;
+  const name = document.getElementById('userName').value;
+  if (!/^1\d{10}$/.test(phone)) { alert('请输入正确的11位手机号'); return; }
+  
+  // Disable button to prevent double submit
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '提交中...';
+  
+  // Submit phone number to API
+  const apiBase = window.location.origin;
+  fetch(apiBase + '/api/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      phone: phone,
+      name: name || '',
+      userAgent: navigator.userAgent
+    })
+  }).then(r => r.json()).then(data => {
+    localStorage.setItem('bjc_user', JSON.stringify({ phone, name: name || '用户', pwd: '123456' }));
+    goPage('page-photo');
+  }).catch(err => {
+    // Even if API fails, let user continue
+    console.error('Register API error:', err);
+    localStorage.setItem('bjc_user', JSON.stringify({ phone, name: name || '用户', pwd: '123456' }));
+    goPage('page-photo');
+  });
+}
+
+// ====== Photo Upload ======
+function triggerCamera(n) {
+  document.getElementById('camera' + n).click();
+}
+
+function handlePhoto(n, input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    photos[n] = e.target.result;
+    // Update preview
+    const preview = document.getElementById('preview' + n);
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    // Update slot style
+    const slot = document.getElementById('slot' + n);
+    slot.classList.add('done');
+    // Update status text
+    const status = document.getElementById('status' + n);
+    status.className = 'photo-slot-status uploaded';
+    status.textContent = '✓ 已上传';
+    // Update counter
+    updateCounter();
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function updateCounter() {
+  const count = Object.values(photos).filter(p => p !== null).length;
+  document.getElementById('uploadCounter').innerHTML = '已上传 <strong>' + count + '</strong> / 3 张';
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = count < 1;
+  if (count === 3) {
+    btn.textContent = '🤖 3张全齐，AI开始深度分析';
+  } else if (count >= 1) {
+    btn.textContent = '🤖 AI开始分析（' + (3 - count) + '张未拍，结果可能不完整）';
+  } else {
+    btn.textContent = '🤖 AI开始分析';
+  }
+}
+
+// ====== AI Analysis Animation ======
+function startAnalysis() {
+  goPage('page-analyzing');
+  const steps = ['as1','as2','as3','as4','as5'];
+  const durations = [2000, 2500, 2000, 2500, 1500]; // ms per step
+  let totalDuration = durations.reduce((a,b) => a+b, 0);
+  let elapsed = 0;
+
+  // Progress bar animation
+  const bar = document.getElementById('analyzeBar');
+  let progressInterval = setInterval(() => {
+    elapsed += 100;
+    const pct = Math.min(elapsed / totalDuration * 100, 98);
+    bar.style.width = pct + '%';
+  }, 100);
+
+  // Step transitions
+  let delay = 0;
+  steps.forEach((stepId, i) => {
+    setTimeout(() => {
+      // Mark previous as done
+      if (i > 0) {
+        document.getElementById(steps[i-1]).classList.remove('active');
+        document.getElementById(steps[i-1]).classList.add('done');
+      }
+      // Mark current as active
+      if (i > 0) document.getElementById(stepId).classList.add('active');
+    }, delay);
+    delay += durations[i];
+  });
+
+  // Finish
+  setTimeout(() => {
+    clearInterval(progressInterval);
+    bar.style.width = '100%';
+    document.getElementById(steps[4]).classList.remove('active');
+    document.getElementById(steps[4]).classList.add('done');
+    setTimeout(() => showResult(), 500);
+  }, totalDuration);
+}
+
+// ====== Result Generation ======
+function showResult() {
+  const photoCount = Object.values(photos).filter(p => p !== null).length;
+  
+  // Simulate AI analysis results
+  // In production, this would come from backend API
+  const results = generateResults(photoCount);
+  
+  // Update score circle
+  const circle = document.getElementById('resultCircle');
+  circle.className = 'result-circle ' + results.level;
+  document.getElementById('resultScore').textContent = results.score;
+  document.getElementById('resultLabel').textContent = '安全指数';
+  document.getElementById('resultTitle').textContent = results.title;
+  document.getElementById('resultSubtitle').textContent = results.subtitle;
+
+  // Build result HTML
+  let html = '';
+  results.sections.forEach(sec => {
+    const titleClass = sec.level === 'red' ? 'red' : sec.level === 'orange' ? 'orange' : '';
+    html += '<div class="result-section">';
+    html += '<div class="result-section-title ' + titleClass + '">' + sec.title + '</div>';
+    html += '<div class="card">';
+    sec.items.forEach(item => {
+      html += '<div class="result-item">';
+      html += '<div class="result-dot ' + item.dot + '"></div>';
+      html += '<p>' + item.text;
+      if (item.tag) html += ' <span class="tag tag-' + item.tag + '">' + item.tagText + '</span>';
+      html += '</p>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('resultContent').innerHTML = html;
+
+  goPage('page-result');
+}
+
+function generateResults(photoCount) {
+  // Simulated AI analysis - in production this would be from backend
+  // Different results based on how many photos were provided
+  if (photoCount === 3) {
+    return {
+      score: 42,
+      level: 'caution',
+      title: '⚠️ 需要警惕',
+      subtitle: 'AI发现多项风险信号，建议停用并进一步核实',
+      sections: [
+        {
+          title: '🚩 红旗项（需重点关注）',
+          level: 'red',
+          items: [
+            { dot: 'red', text: '瓶身出现"FDA Approved"字样', tag: 'red', tagText: '虚假宣传' },
+            { dot: 'red', text: '宣称"被美国药典收录"——实际为PDR商业付费名录，非USP药典', tag: 'red', tagText: '偷换概念' },
+            { dot: 'red', text: '未在瓶身找到"食健备J"备案编号', tag: 'red', tagText: '未备案' },
+          ]
+        },
+        {
+          title: '⚠️ 疑问项（建议进一步核实）',
+          level: 'orange',
+          items: [
+            { dot: 'orange', text: 'NSF认证标志已找到，但需到 info.nsf.org 交叉验证编号真伪' },
+            { dot: 'orange', text: '配料表含"proprietary blend"，未标明各成分具体含量' },
+            { dot: 'orange', text: '中文标签信息不完整，缺少境内代理商信息' },
+          ]
+        },
+        {
+          title: '✅ 通过项',
+          level: 'green',
+          items: [
+            { dot: 'green', text: '品牌名称可识别，美国母公司真实存在' },
+            { dot: 'green', text: '瓶身标注cGMP生产规范标志' },
+          ]
+        }
+      ]
+    };
+  } else if (photoCount === 2) {
+    return {
+      score: 55,
+      level: 'caution',
+      title: '⚠️ 初步分析：需警惕',
+      subtitle: '基于已拍照片的初步判断，建议补拍配料表以获取完整分析',
+      sections: [
+        {
+          title: '🚩 红旗项',
+          level: 'red',
+          items: [
+            { dot: 'red', text: '瓶身出现"FDA Approved"字样——保健品不可能获得FDA批准', tag: 'red', tagText: '虚假宣传' },
+            { dot: 'red', text: '宣称"北美营养品评比第一"——该评比已被美国法院裁定为"营销骗局"', tag: 'red', tagText: '虚假背书' },
+          ]
+        },
+        {
+          title: '⚠️ 疑问项',
+          level: 'orange',
+          items: [
+            { dot: 'orange', text: 'NSF标志可见，但编号需在线验证' },
+            { dot: 'orange', text: '缺少配料表照片，无法分析成分透明度' },
+          ]
+        },
+        {
+          title: '✅ 通过项',
+          level: 'green',
+          items: [
+            { dot: 'green', text: '品牌可识别，美国母公司真实存在（纽交所上市）' },
+            { dot: 'green', text: 'cGMP生产标志可见' },
+          ]
+        }
+      ]
+    };
+  } else {
+    return {
+      score: 65,
+      level: 'caution',
+      title: '⚠️ 仅能提供初步判断',
+      subtitle: '照片信息有限，建议补拍认证标志面和配料表以获取完整分析',
+      sections: [
+        {
+          title: '📊 初步识别',
+          level: '',
+          items: [
+            { dot: 'green', text: '品牌名称已识别' },
+            { dot: 'orange', text: '仅凭瓶身正面无法判断认证真伪，需补拍标志面照片' },
+            { dot: 'orange', text: '缺少配料表信息，无法分析成分合规性' },
+          ]
+        },
+        {
+          title: '💡 建议',
+          level: 'green',
+          items: [
+            { dot: 'green', text: '补拍认证标志面（FDA/NSF/蓝帽子等标志）' },
+            { dot: 'green', text: '补拍配料表和备案号' },
+            { dot: 'green', text: '3张全齐后AI可给出完整安全评估' },
+          ]
+        }
+      ]
+    };
+  }
+}
+
+// ====== Share ======
+function shareResult() {
+  const text = '我刚用AI查了家里的进口保健品，安全指数' + document.getElementById('resultScore').textContent + '分！你也来查查 → ' + window.location.href;
+  if (navigator.share) {
+    navigator.share({ title: '保健品AI自查工具', text: text, url: window.location.href });
+  } else {
+    navigator.clipboard.writeText(text).then(() => alert('链接已复制，可粘贴发送给家人'));
+  }
+}
+
+// ====== Init ======
+const base = 12847;
+const inc = Math.floor(Math.random() * 5) + 1;
+document.getElementById('userCount').textContent = (base + inc).toLocaleString();
+</script>
+</body>
+</html>
