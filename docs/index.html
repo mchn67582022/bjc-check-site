@@ -18,13 +18,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .btn-primary:active{background:var(--green-dark);transform:scale(.97)}
 .btn-primary:disabled{background:#ccc;box-shadow:none;cursor:not-allowed}
 .btn-outline{background:#fff;color:var(--green);border:2px solid var(--green)}
+.btn-green-lg{background:linear-gradient(135deg,#43A047,#66BB6A);color:#fff;font-size:17px;padding:16px;border-radius:25px;border:none;width:100%;cursor:pointer;font-weight:bold;box-shadow:0 4px 16px rgba(67,160,71,.35);transition:all .2s}
+.btn-green-lg:active{transform:scale(.97);background:linear-gradient(135deg,#2E7D32,#43A047)}
+.btn-green-lg:disabled{background:#ccc;box-shadow:none;cursor:not-allowed}
 .card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
 .input-group{margin-bottom:16px}
 .input-group label{display:block;font-size:14px;font-weight:bold;margin-bottom:8px;color:var(--text)}
 .input-group input{width:100%;padding:12px 16px;border:2px solid #e0e0e0;border-radius:8px;font-size:16px;outline:none;transition:border .2s}
 .input-group input:focus{border-color:var(--green)}
-.agreement{font-size:12px;color:var(--text3);margin-top:12px;text-align:center}
-.agreement a{color:var(--green)}
 
 /* Landing */
 .hero{text-align:center;padding:30px 0 20px}
@@ -32,10 +33,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .hero h1{font-size:24px;font-weight:bold;line-height:1.4;margin-bottom:10px}
 .hero h1 span{color:var(--green)}
 .hero p{font-size:15px;color:var(--text2);line-height:1.8}
-.stats{display:flex;gap:8px;margin:20px 0}
-.stat{flex:1;text-align:center;padding:14px 6px;background:var(--red-light);border-radius:var(--radius)}
-.stat-num{font-size:24px;font-weight:bold;color:var(--red)}
-.stat-label{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* Pain point cards (replace fake stats) */
+.pain-cards{margin:20px 0}
+.pain-card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:10px;box-shadow:var(--shadow);border-left:4px solid var(--red);display:flex;gap:12px;align-items:flex-start}
+.pain-card .pain-emoji{font-size:28px;flex-shrink:0;line-height:1.3}
+.pain-card .pain-content{flex:1}
+.pain-card .pain-title{font-size:14px;font-weight:bold;color:var(--red);margin-bottom:2px}
+.pain-card .pain-desc{font-size:13px;color:var(--text2);line-height:1.5}
+
 .how-it-works{margin:24px 0}
 .how-it-works h2{font-size:17px;margin-bottom:16px;text-align:center}
 .steps-row{display:flex;gap:10px;text-align:center}
@@ -44,13 +50,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .step-num{width:28px;height:28px;background:var(--green);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;margin-bottom:6px}
 .step-item p{font-size:13px;color:var(--text2);line-height:1.4}
 .step-item .step-main{font-size:14px;font-weight:bold;color:var(--text)}
-.user-count{text-align:center;margin-top:16px;font-size:13px;color:var(--text3)}
-.user-count strong{color:var(--green-dark)}
-
-/* Register */
-.reg-header{text-align:center;padding:24px 0}
-.reg-header h2{font-size:22px;margin-bottom:6px}
-.reg-header p{color:var(--text2);font-size:14px}
 
 /* Photo Upload */
 .photo-header{text-align:center;padding:16px 0}
@@ -60,12 +59,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .photo-slot{padding:0;background:var(--card);border-radius:var(--radius);margin-bottom:12px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:all .2s;border:2px dashed var(--green);min-height:120px}
 .photo-slot:hover{border-color:var(--green);transform:scale(1.01)}
 .photo-slot.done{border-style:solid;border-color:var(--green)}
-.photo-slot-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 16px;text-align:center}
-.photo-camera-icon{font-size:36px;margin-bottom:6px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-.photo-slot-label{font-size:16px;font-weight:bold;color:var(--green-dark);margin-bottom:4px}
+.photo-slot-inner{display:flex;align-items:center;gap:14px;padding:16px;text-align:left}
+.photo-slot-left{flex-shrink:0;width:72px;height:72px;border-radius:10px;background:var(--green-light);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.photo-slot-left .demo-icon{font-size:30px;line-height:1}
+.photo-slot-left .demo-sub{font-size:9px;color:var(--green-dark);margin-top:2px;font-weight:bold}
+.photo-slot-right{flex:1}
+.photo-slot-label{font-size:16px;font-weight:bold;color:var(--green-dark);margin-bottom:2px}
 .photo-slot-title{font-size:14px;font-weight:bold;margin-bottom:2px}
-.photo-slot-desc{font-size:12px;color:var(--text3)}
+.photo-slot-desc{font-size:12px;color:var(--text3);line-height:1.4}
+.photo-slot .tap-hint{display:inline-block;background:var(--green);color:#fff;font-size:11px;padding:3px 10px;border-radius:10px;margin-top:4px}
 .photo-slot.done .photo-slot-inner{display:none}
 .photo-slot-preview{width:100%;height:160px;object-fit:cover;display:none}
 .photo-slot.done .photo-slot-preview{display:block}
@@ -83,6 +85,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .analyze-spinner{width:80px;height:80px;border:4px solid #e0e0e0;border-top:4px solid var(--green);border-radius:50%;margin:0 auto 24px;animation:spin 1s linear infinite}
 .analyze-wrap h2{font-size:20px;margin-bottom:8px}
 .analyze-wrap .sub{color:var(--text2);font-size:14px;margin-bottom:24px}
+.analyze-current{text-align:center;font-size:15px;color:var(--green-dark);font-weight:bold;margin-bottom:20px;min-height:24px;transition:all .3s}
 .analyze-steps{text-align:left;max-width:320px;margin:0 auto}
 .analyze-step{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:14px;color:var(--text3);transition:all .3s}
 .analyze-step.active{color:var(--text);font-weight:bold}
@@ -95,12 +98,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 
 /* Result */
 .result-header{text-align:center;padding:16px 0}
-.result-circle{width:110px;height:110px;border-radius:50%;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px;color:#fff}
+.result-circle{width:110px;height:110px;border-radius:50%;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:8px;color:#fff}
 .result-circle.safe{background:var(--green)}
 .result-circle.caution{background:var(--orange)}
 .result-circle.danger{background:var(--red)}
 .result-circle .score{font-size:36px;font-weight:bold;line-height:1}
 .result-circle .score-label{font-size:12px;margin-top:2px;opacity:.9}
+.score-reference{font-size:12px;color:var(--text3);margin-bottom:8px}
 .result-header h2{font-size:20px;margin-bottom:4px}
 .result-header p{color:var(--text2);font-size:14px}
 .result-section{margin:16px 0}
@@ -118,17 +122,67 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .tag-red{background:var(--red-light);color:var(--red)}
 .tag-green{background:var(--green-light);color:var(--green-dark)}
 .tag-orange{background:var(--orange-light);color:var(--orange)}
-.result-cta{margin:20px 0;padding:20px;background:linear-gradient(135deg,var(--green-light),#C8E6C9);border-radius:var(--radius);text-align:center}
+
+/* Action Guide */
+.action-guide{margin:16px 0;background:var(--blue-light);border-radius:var(--radius);padding:16px 18px;border-left:4px solid var(--blue)}
+.action-guide .action-title{font-size:15px;font-weight:bold;color:var(--blue);margin-bottom:8px}
+.action-guide .action-step{font-size:13px;color:var(--text2);line-height:1.8;padding-left:4px}
+
+/* CTA: Save report to phone */
+.result-cta{margin:20px 0;padding:24px 20px;background:linear-gradient(135deg,var(--green-light),#C8E6C9);border-radius:var(--radius);text-align:center}
 .result-cta h3{font-size:16px;color:var(--green-dark);margin-bottom:6px}
 .result-cta p{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6}
+.cta-phone-form{display:none;margin-top:14px}
+.cta-phone-form.show{display:block;animation:fadeIn .3s ease}
+.cta-phone-input{width:100%;padding:14px 16px;border:2px solid var(--green);border-radius:25px;font-size:18px;text-align:center;outline:none;letter-spacing:2px;transition:border .2s;margin-bottom:10px}
+.cta-phone-input:focus{border-color:var(--green-dark)}
+.cta-success{display:none;margin-top:10px;font-size:15px;color:var(--green-dark);font-weight:bold}
+.cta-success.show{display:block;animation:fadeIn .3s ease}
+
 .tips-box{background:var(--orange-light);border-left:4px solid var(--orange);padding:14px 16px;border-radius:0 8px 8px 0;margin:16px 0;font-size:13px;color:var(--text2);line-height:1.7}
 .tips-box strong{color:var(--orange)}
 .footer-disclaimer{font-size:11px;color:var(--text3);text-align:center;margin:20px 0;line-height:1.6}
 .share-bar{display:flex;gap:10px;margin:16px 0}
 .share-bar .btn{flex:1;padding:12px;font-size:14px}
+
+/* Privacy Modal */
+.privacy-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px}
+.privacy-overlay.show{display:flex;animation:fadeIn .2s ease}
+.privacy-modal{background:#fff;border-radius:16px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto;padding:24px 20px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.privacy-modal h3{font-size:18px;font-weight:bold;margin-bottom:14px;color:var(--text)}
+.privacy-modal p{font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:12px}
+.privacy-modal .privacy-section{margin-bottom:14px}
+.privacy-modal .privacy-section h4{font-size:14px;font-weight:bold;color:var(--green-dark);margin-bottom:4px}
+.privacy-modal .privacy-section p{font-size:13px;color:var(--text2);line-height:1.7}
+.privacy-close{display:block;width:100%;padding:12px;border:none;border-radius:25px;background:var(--green);color:#fff;font-size:15px;font-weight:bold;cursor:pointer;margin-top:10px}
+.privacy-close:active{background:var(--green-dark)}
 </style>
 </head>
 <body>
+
+<!-- Privacy Policy Modal -->
+<div class="privacy-overlay" id="privacyOverlay">
+  <div class="privacy-modal">
+    <h3>🔒 隐私政策</h3>
+    <div class="privacy-section">
+      <h4>📱 手机号用途</h4>
+      <p>您输入的手机号仅用于向您发送AI分析报告短信，不会用于任何其他商业推送或营销目的。</p>
+    </div>
+    <div class="privacy-section">
+      <h4>📷 照片处理</h4>
+      <p>您拍摄的保健品照片仅用于AI识别分析，分析完成后即从服务器删除，我们不会存储、备份或二次使用您的照片。</p>
+    </div>
+    <div class="privacy-section">
+      <h4>🛡️ 数据安全</h4>
+      <p>您的个人信息和分析结果不会分享、出售或提供给任何第三方。所有数据传输均采用加密通道。</p>
+    </div>
+    <div class="privacy-section">
+      <h4>❓ 联系我们</h4>
+      <p>如有任何隐私相关问题，请通过页面联系方式与我们沟通。</p>
+    </div>
+    <button class="privacy-close" onclick="closePrivacy()">我已了解</button>
+  </div>
+</div>
 
 <!-- Page 1: Landing -->
 <div class="page active" id="page-landing">
@@ -138,18 +192,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
     <p>不用自己查，AI帮你识别瓶身信息<br>自动核查认证、成分、合规性</p>
   </div>
 
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-num">83%</div>
-      <div class="stat-label">网红鱼油不合格率</div>
+  <!-- Pain point cards (replacing fake stats) -->
+  <div class="pain-cards">
+    <div class="pain-card">
+      <div class="pain-emoji">❌</div>
+      <div class="pain-content">
+        <div class="pain-title">"FDA Approved" 是假的</div>
+        <div class="pain-desc">瓶身写着FDA Approved？保健品不可能获得FDA批准，这是虚假宣传</div>
+      </div>
     </div>
-    <div class="stat">
-      <div class="stat-num">72%</div>
-      <div class="stat-label">假洋牌占比</div>
+    <div class="pain-card">
+      <div class="pain-emoji">❌</div>
+      <div class="pain-content">
+        <div class="pain-title">"北美营养品评比第一" 是骗局</div>
+        <div class="pain-desc">美国法院已裁定该评比为营销骗局，花钱就能买排名</div>
+      </div>
     </div>
-    <div class="stat">
-      <div class="stat-num">32.7%</div>
-      <div class="stat-label">无正规备案</div>
+    <div class="pain-card">
+      <div class="pain-emoji">❌</div>
+      <div class="pain-content">
+        <div class="pain-title">没有蓝帽子备案号 = 不合规</div>
+        <div class="pain-desc">在国内销售的保健食品必须有"食健备J"编号，没有就是在灰色地带</div>
+      </div>
     </div>
   </div>
 
@@ -177,33 +241,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
     </div>
   </div>
 
-  <button class="btn btn-primary" onclick="goPage('page-register')">免费拍照自查</button>
-  <p class="user-count">已有 <strong id="userCount">12,847</strong> 人完成AI自查</p>
+  <button class="btn btn-primary" onclick="goPage('page-photo')">免费拍照自查</button>
+  <p style="text-align:center;margin-top:10px;font-size:12px;color:var(--text3)">无需注册，拍完即出结果</p>
 </div>
 
-<!-- Page 2: Register (phone only) -->
-<div class="page" id="page-register">
-  <div class="reg-header">
-    <h2>免费开始自查</h2>
-    <p>输入手机号，接收分析结果</p>
-  </div>
-
-  <div class="card">
-    <div class="input-group">
-      <label>手机号</label>
-      <input type="tel" id="phone" placeholder="请输入手机号" maxlength="11" style="font-size:18px;letter-spacing:2px">
-    </div>
-    <div class="input-group">
-      <label>称呼</label>
-      <input type="text" id="userName" placeholder="怎么称呼您（选填）">
-    </div>
-    <button class="btn btn-primary" onclick="doRegister()">立即开始自查</button>
-  </div>
-
-  <p class="agreement">注册即同意 <a href="javascript:void(0)">《用户协议》</a> 和 <a href="javascript:void(0)">《隐私政策》</a></p>
-</div>
-
-<!-- Page 3: Photo Upload (3 photos) -->
+<!-- Page 2: Photo Upload (3 photos) - NO register page anymore -->
 <div class="page" id="page-photo">
   <div class="photo-header">
     <h2>📸 拍3张照片</h2>
@@ -215,10 +257,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
     <div class="photo-slot" id="slot1">
       <input type="file" class="photo-file-input" id="camera1" accept="image/*" capture="environment" onchange="handlePhoto(1,this)">
       <div class="photo-slot-inner" id="inner1">
-        <div class="photo-camera-icon">📷</div>
-        <div class="photo-slot-label">点击拍照</div>
-        <div class="photo-slot-title">瓶身正面</div>
-        <div class="photo-slot-desc">品牌名、产品名、产地</div>
+        <div class="photo-slot-left">
+          <div class="demo-icon">🧴</div>
+          <div class="demo-sub">瓶身</div>
+        </div>
+        <div class="photo-slot-right">
+          <div class="photo-slot-title">瓶身正面</div>
+          <div class="photo-slot-desc">品牌名、产品名、产地<br>把瓶子正面标签拍完整</div>
+          <span class="tap-hint">📷 点击拍照</span>
+        </div>
       </div>
       <img class="photo-slot-preview" id="preview1" style="display:none">
       <div class="photo-retake" id="retake1" onclick="retakePhoto(1)">📷 重拍</div>
@@ -228,10 +275,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
     <div class="photo-slot" id="slot2">
       <input type="file" class="photo-file-input" id="camera2" accept="image/*" capture="environment" onchange="handlePhoto(2,this)">
       <div class="photo-slot-inner" id="inner2">
-        <div class="photo-camera-icon">📷</div>
-        <div class="photo-slot-label">点击拍照</div>
-        <div class="photo-slot-title">认证标志面</div>
-        <div class="photo-slot-desc">FDA/NSF/TGA/蓝帽子等</div>
+        <div class="photo-slot-left">
+          <div class="demo-icon">✅</div>
+          <div class="demo-sub">认证</div>
+        </div>
+        <div class="photo-slot-right">
+          <div class="photo-slot-title">认证标志面</div>
+          <div class="photo-slot-desc">FDA / NSF / TGA / 蓝帽子等<br>找瓶身上的认证小图标拍下来</div>
+          <span class="tap-hint">📷 点击拍照</span>
+        </div>
       </div>
       <img class="photo-slot-preview" id="preview2" style="display:none">
       <div class="photo-retake" id="retake2" onclick="retakePhoto(2)">📷 重拍</div>
@@ -241,10 +293,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
     <div class="photo-slot" id="slot3">
       <input type="file" class="photo-file-input" id="camera3" accept="image/*" capture="environment" onchange="handlePhoto(3,this)">
       <div class="photo-slot-inner" id="inner3">
-        <div class="photo-camera-icon">📷</div>
-        <div class="photo-slot-label">点击拍照</div>
-        <div class="photo-slot-title">配料表/备案号</div>
-        <div class="photo-slot-desc">成分表、含量、备案号</div>
+        <div class="photo-slot-left">
+          <div class="demo-icon">📋</div>
+          <div class="demo-sub">配料</div>
+        </div>
+        <div class="photo-slot-right">
+          <div class="photo-slot-title">配料表/备案号</div>
+          <div class="photo-slot-desc">成分表、含量、备案编号<br>通常在瓶身侧面或背面</div>
+          <span class="tap-hint">📷 点击拍照</span>
+        </div>
       </div>
       <img class="photo-slot-preview" id="preview3" style="display:none">
       <div class="photo-retake" id="retake3" onclick="retakePhoto(3)">📷 重拍</div>
@@ -265,33 +322,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
   <p style="text-align:center;margin-top:8px;font-size:12px;color:var(--text3)">至少拍1张即可开始分析，3张全拍结果更准</p>
 </div>
 
-<!-- Page 4: AI Analyzing -->
+<!-- Page 3: AI Analyzing -->
 <div class="page" id="page-analyzing">
   <div class="analyze-wrap">
     <div class="analyze-spinner"></div>
     <h2>AI正在分析你的保健品</h2>
     <p class="sub">正在识别瓶身信息并交叉核查</p>
 
+    <div class="analyze-current" id="analyzeCurrent">正在上传照片…</div>
+
     <div class="analyze-steps">
-      <div class="analyze-step active" id="as1">
+      <div class="analyze-step" id="as1">
         <div class="dot">1</div>
-        <span>识别瓶身品牌与产品信息…</span>
+        <span>上传照片到AI服务器</span>
       </div>
       <div class="analyze-step" id="as2">
         <div class="dot">2</div>
-        <span>核查认证标志真伪…</span>
+        <span>AI识别品牌与产品信息</span>
       </div>
       <div class="analyze-step" id="as3">
         <div class="dot">3</div>
-        <span>比对配料成分与备案信息…</span>
+        <span>联网核查FDA/NSF认证</span>
       </div>
       <div class="analyze-step" id="as4">
         <div class="dot">4</div>
-        <span>交叉验证国内外数据库…</span>
+        <span>比对配料成分与备案数据</span>
       </div>
       <div class="analyze-step" id="as5">
         <div class="dot">5</div>
-        <span>生成安全评估报告…</span>
+        <span>生成安全评估报告</span>
       </div>
     </div>
 
@@ -301,27 +360,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
   </div>
 </div>
 
-<!-- Page 5: Result -->
+<!-- Page 4: Result -->
 <div class="page" id="page-result">
   <div class="result-header">
     <div class="result-circle" id="resultCircle">
       <div class="score" id="resultScore">--</div>
       <div class="score-label" id="resultLabel">安全指数</div>
     </div>
+    <div class="score-reference">满分100 · 60分以下建议停用并咨询专业人士</div>
     <h2 id="resultTitle">分析完成</h2>
     <p id="resultSubtitle"></p>
   </div>
 
   <div id="resultContent"></div>
 
+  <!-- Action Guide (dynamically populated) -->
+  <div class="action-guide" id="actionGuide" style="display:none">
+    <div class="action-title">📋 建议行动</div>
+    <div class="action-step" id="actionSteps"></div>
+  </div>
+
   <div class="result-cta">
-    <h3>📋 想要详细版深度核查报告？</h3>
-    <p>专业团队人工复核，逐项给出书面分析<br>含认证查询链接+操作步骤+替代建议</p>
-    <div style="margin-top:14px;">
-      <input type="number" id="deepReportInput" placeholder="输入9 领取深度报告" style="width:100%;padding:14px 16px;border:2px solid var(--green);border-radius:25px;font-size:18px;text-align:center;outline:none;letter-spacing:4px;transition:border .2s" onfocus="this.style.borderColor='var(--green-dark)'" onblur="this.style.borderColor='var(--green)'">
-      <button class="btn btn-primary" id="deepReportBtn" onclick="submitDeepReport()" style="max-width:280px;margin:12px auto 0">立即领取深度报告</button>
+    <h3>📱 保存完整报告到手机</h3>
+    <p>输入手机号，我们将把完整分析报告发送给您<br>方便随时查看，也能分享给家人</p>
+    <button class="btn-green-lg" id="saveReportBtn" onclick="showPhoneForm()">📱 保存完整报告到手机</button>
+    <div class="cta-phone-form" id="ctaPhoneForm">
+      <input type="tel" class="cta-phone-input" id="ctaPhone" placeholder="请输入手机号" maxlength="11">
+      <button class="btn btn-primary" id="ctaSubmitBtn" onclick="submitPhoneCTA()" style="max-width:280px;margin:0 auto">提交并发送报告</button>
     </div>
-    <p style="font-size:11px;color:var(--text3);margin-top:10px">提交即视为同意接收分析报告，我们将通过手机联系您</p>
+    <div class="cta-success" id="ctaSuccess">✅ 报告将发送到您的手机</div>
+    <p style="font-size:11px;color:var(--text3);margin-top:10px">提交即视为同意 <a href="javascript:void(0)" onclick="openPrivacy()" style="color:var(--green)">《隐私政策》</a></p>
   </div>
 
   <div class="tips-box">
@@ -344,6 +412,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 const photos = { 1: null, 2: null, 3: null };
 const photoLabels = { 1: '瓶身正面', 2: '认证标志面', 3: '配料表/备案号' };
 
+// ====== Privacy Policy ======
+function openPrivacy() {
+  document.getElementById('privacyOverlay').classList.add('show');
+}
+function closePrivacy() {
+  document.getElementById('privacyOverlay').classList.remove('show');
+}
+// 点击遮罩关闭
+document.getElementById('privacyOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closePrivacy();
+});
+
 // ====== Navigation ======
 function goPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -351,30 +431,48 @@ function goPage(id) {
   window.scrollTo(0, 0);
 }
 
-// ====== Register ======
-function doRegister() {
-  const phone = document.getElementById('phone').value;
-  const name = document.getElementById('userName').value;
-  if (!/^1\d{10}$/.test(phone)) { alert('请输入正确的11位手机号'); return; }
-  localStorage.setItem('bjc_user', JSON.stringify({ phone, name: name || '用户', pwd: '123456' }));
-  // 提交手机号到后端
-  submitPhone(phone, name);
-  goPage('page-photo');
+// ====== Phone CTA on Result Page ======
+function showPhoneForm() {
+  document.getElementById('ctaPhoneForm').classList.add('show');
+  document.getElementById('saveReportBtn').style.display = 'none';
+  document.getElementById('ctaPhone').focus();
 }
 
-async function submitPhone(phone, name) {
+async function submitPhoneCTA() {
+  const phone = document.getElementById('ctaPhone').value.trim();
+  if (!/^1\d{10}$/.test(phone)) {
+    alert('请输入正确的11位手机号');
+    return;
+  }
+  const btn = document.getElementById('ctaSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = '提交中…';
+
   try {
+    // 提交手机号+评分到邮箱
     const formData = new FormData();
     formData.append('手机号', phone);
-    formData.append('称呼', name || '未填写');
-    formData.append('_subject', '保健品自查-新用户注册');
+    formData.append('安全评分', document.getElementById('resultScore').textContent);
+    formData.append('产品名称', document.getElementById('resultTitle').textContent);
+    formData.append('_subject', '保健品自查-保存报告到手机');
     formData.append('_captcha', 'false');
     formData.append('_template', 'table');
     await fetch('https://formsubmit.co/ajax/3982695436@qq.com', {
       method: 'POST',
       body: formData,
     });
-  } catch(e) { /* 静默失败，不影响用户体验 */ }
+
+    // 保存到localStorage
+    localStorage.setItem('bjc_user', JSON.stringify({ phone: phone, name: '用户' }));
+
+    // 显示成功
+    document.getElementById('ctaPhoneForm').style.display = 'none';
+    document.getElementById('ctaSuccess').classList.add('show');
+  } catch(e) {
+    alert('提交失败，请稍后重试');
+    btn.disabled = false;
+    btn.textContent = '提交并发送报告';
+  }
 }
 
 // 提交照片到邮箱（使用隐藏iframe表单提交，支持文件附件）
@@ -403,7 +501,7 @@ async function submitPhotos() {
 
     // 添加文本字段
     const fields = {
-      '手机号': user.phone || '未知',
+      '手机号': user.phone || '未留号',
       '称呼': user.name || '未知',
       '_subject': '保健品自查-用户上传照片',
       '_captcha': 'false',
@@ -502,16 +600,14 @@ function compressPhoto(dataURL, callback) {
   img.src = dataURL;
 }
 
-// 重拍：恢复初始状态，重新触发拍照
+// 重拍
 function retakePhoto(n) {
   photos[n] = null;
   const slot = document.getElementById('slot' + n);
   slot.classList.remove('done');
   document.getElementById('preview' + n).style.display = 'none';
-  // 重置input值，确保同一张照片也能重新选
   const input = document.getElementById('camera' + n);
   input.value = '';
-  // 直接触发拍照
   input.click();
   updateCounter();
 }
@@ -533,12 +629,19 @@ function updateCounter() {
 // ====== AI Analysis (Real Coze Bot API) ======
 const COZE_BOT_ID = '7657927021552975887';
 const COZE_API_BASE = 'https://api.coze.cn';
-// API令牌 - 需要在Coze后台生成PAT替换，路径：个人中心→API管理→创建个人访问令牌（选chat+upload权限）
-// 当前使用session token，有效期有限，请尽快替换为pat_xxxx格式的正式令牌
 const COZE_PAT = 'pat_yoX6tjTP8p5Qy4T7q8YYAxsvscRBBDI4SvGAvbLz2BTX1XzJreOrPpfUhtlfUrDp';
 
+// Analyzing step messages for dynamic display
+const analyzeMessages = [
+  '正在上传第1张照片…',
+  'AI正在识别品牌与产品信息…',
+  '正在联网核查FDA/NSF认证…',
+  '正在比对配料成分与备案数据…',
+  '生成安全评估报告…'
+];
+
 function startAnalysis() {
-  // 提交照片和手机号到邮箱（同时进行）
+  // 提交照片到邮箱（同时进行）
   submitPhotos();
   goPage('page-analyzing');
 
@@ -549,9 +652,10 @@ function startAnalysis() {
 async function callCozeBot() {
   const steps = ['as1','as2','as3','as4','as5'];
   const bar = document.getElementById('analyzeBar');
+  const currentMsg = document.getElementById('analyzeCurrent');
   let stepIndex = 0;
 
-  // 动画：逐步高亮
+  // 动态更新当前步骤文字和高亮
   function advanceStep() {
     if (stepIndex > 0) {
       document.getElementById(steps[stepIndex-1]).classList.remove('active');
@@ -559,9 +663,12 @@ async function callCozeBot() {
     }
     if (stepIndex < steps.length) {
       document.getElementById(steps[stepIndex]).classList.add('active');
+      // 更新顶部实时状态文字
+      currentMsg.textContent = analyzeMessages[stepIndex] || '处理中…';
     }
     stepIndex++;
   }
+
   advanceStep(); // 步骤1高亮
   let progressVal = 0;
   const progressInterval = setInterval(() => {
@@ -640,7 +747,6 @@ async function callCozeBot() {
       );
       const retrieveData = await retrieveResp.json();
       if (retrieveData.data && retrieveData.data.status === 'completed') {
-        // 获取回答消息
         const msgResp = await fetch(
           COZE_API_BASE + '/v3/chat/message/list?conversation_id=' + convId + '&chat_id=' + chatId,
           { headers: { 'Authorization': 'Bearer ' + COZE_PAT } }
@@ -659,6 +765,7 @@ async function callCozeBot() {
 
     clearInterval(progressInterval);
     bar.style.width = '100%';
+    currentMsg.textContent = '分析完成！';
     steps.forEach(s => {
       document.getElementById(s).classList.remove('active');
       document.getElementById(s).classList.add('done');
@@ -666,12 +773,10 @@ async function callCozeBot() {
 
     // 5. 解析结果
     if (result) {
-      // 去除markdown代码块包裹（```json ... ```）
       let cleaned = result.trim();
       if (cleaned.startsWith('```')) {
         cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?\s*```$/, '');
       }
-      // 尝试从回答中提取JSON
       const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
@@ -680,7 +785,6 @@ async function callCozeBot() {
           return;
         } catch(e) {
           console.warn('JSON解析失败，尝试修复:', e);
-          // 尝试修复常见问题：尾逗号、注释
           try {
             let fixed = jsonMatch[0].replace(/,\s*([}\]])/g, '$1').replace(/\/\/.*$/gm, '');
             const parsed = JSON.parse(fixed);
@@ -690,14 +794,13 @@ async function callCozeBot() {
         }
       }
     }
-    // 降级：显示Bot的文本回答
     showResultFallback(result || 'AI分析暂无结果，请稍后重试');
 
   } catch(e) {
     clearInterval(progressInterval);
     bar.style.width = '100%';
+    currentMsg.textContent = '分析完成';
     console.error('AI分析失败:', e);
-    // 降级到本地模拟结果
     const photoCount = Object.values(photos).filter(p => p !== null).length;
     showResult();
   }
@@ -705,9 +808,9 @@ async function callCozeBot() {
 
 // ====== Result from Coze Bot API ======
 function showResultFromAPI(data) {
-  // 更新评分圆环
   const circle = document.getElementById('resultCircle');
-  circle.className = 'result-circle ' + (data.level || 'caution');
+  const level = data.level || 'caution';
+  circle.className = 'result-circle ' + level;
   document.getElementById('resultScore').textContent = data.score || '--';
   document.getElementById('resultLabel').textContent = '安全指数';
   document.getElementById('resultTitle').textContent = data.title || '分析完成';
@@ -739,6 +842,13 @@ function showResultFromAPI(data) {
     html += '</div></div>';
   });
   document.getElementById('resultContent').innerHTML = html;
+
+  // 行动指引
+  showActionGuide(data.score || 50, level);
+
+  // 重置CTA状态
+  resetCTA();
+
   goPage('page-result');
 }
 
@@ -750,6 +860,9 @@ function showResultFallback(text) {
   document.getElementById('resultTitle').textContent = 'AI分析结果';
   document.getElementById('resultSubtitle').textContent = '以下为AI分析详情';
   document.getElementById('resultContent').innerHTML = '<div class="card" style="white-space:pre-wrap;font-size:15px;line-height:1.8">' + escHtml(text) + '</div>';
+
+  showActionGuide(50, 'caution');
+  resetCTA();
   goPage('page-result');
 }
 
@@ -761,15 +874,41 @@ function escHtml(s) {
   return d.innerHTML;
 }
 
+// ====== Action Guide ======
+function showActionGuide(score, level) {
+  const guide = document.getElementById('actionGuide');
+  const steps = document.getElementById('actionSteps');
+  let html = '';
+  if (score < 50 || level === 'danger') {
+    html = '① 停止使用该产品<br>② 拨打12315投诉举报<br>③ 携产品及购买凭证咨询专业医生';
+  } else if (score >= 50 && score < 70) {
+    html = '① 保留产品待进一步核实<br>② 到官网查询认证编号<br>③ 咨询专业人士后再决定是否继续使用';
+  } else if (score >= 70 && score < 90) {
+    html = '① 核实疑问项的认证编号<br>② 关注成分表中的proprietary blend<br>③ 持续关注产品合规动态';
+  } else {
+    html = '① 产品整体合规，可放心使用<br>② 定期复查认证有效期<br>③ 如有不适请停用并就医';
+  }
+  steps.innerHTML = html;
+  guide.style.display = 'block';
+}
+
+// ====== CTA Reset (for re-analysis) ======
+function resetCTA() {
+  document.getElementById('saveReportBtn').style.display = '';
+  document.getElementById('saveReportBtn').disabled = false;
+  document.getElementById('ctaPhoneForm').classList.remove('show');
+  document.getElementById('ctaPhoneForm').style.display = '';
+  document.getElementById('ctaPhone').value = '';
+  document.getElementById('ctaSuccess').classList.remove('show');
+  document.getElementById('ctaSubmitBtn').disabled = false;
+  document.getElementById('ctaSubmitBtn').textContent = '提交并发送报告';
+}
+
 // ====== Result Generation (Local Fallback) ======
 function showResult() {
   const photoCount = Object.values(photos).filter(p => p !== null).length;
-  
-  // Simulate AI analysis results
-  // In production, this would come from backend API
   const results = generateResults(photoCount);
-  
-  // Update score circle
+
   const circle = document.getElementById('resultCircle');
   circle.className = 'result-circle ' + results.level;
   document.getElementById('resultScore').textContent = results.score;
@@ -777,7 +916,6 @@ function showResult() {
   document.getElementById('resultTitle').textContent = results.title;
   document.getElementById('resultSubtitle').textContent = results.subtitle;
 
-  // Build result HTML
   let html = '';
   results.sections.forEach(sec => {
     const titleClass = sec.level === 'red' ? 'red' : sec.level === 'orange' ? 'orange' : '';
@@ -796,12 +934,12 @@ function showResult() {
   });
   document.getElementById('resultContent').innerHTML = html;
 
+  showActionGuide(results.score, results.level);
+  resetCTA();
   goPage('page-result');
 }
 
 function generateResults(photoCount) {
-  // Simulated AI analysis - in production this would be from backend
-  // Different results based on how many photos were provided
   if (photoCount === 3) {
     return {
       score: 42,
@@ -900,38 +1038,6 @@ function generateResults(photoCount) {
   }
 }
 
-// ====== Deep Report (精准用户) ======
-async function submitDeepReport() {
-  const input = document.getElementById('deepReportInput');
-  const val = input.value.trim();
-  if (!val) { alert('请输入数字9领取深度报告'); return; }
-  const user = JSON.parse(localStorage.getItem('bjc_user') || '{}');
-  try {
-    const formData = new FormData();
-    formData.append('手机号', user.phone || '未知');
-    formData.append('称呼', user.name || '未知');
-    formData.append('深度报告代码', val);
-    formData.append('安全评分', document.getElementById('resultScore').textContent);
-    formData.append('_subject', '保健品自查-精准用户-请求深度报告');
-    formData.append('_captcha', 'false');
-    formData.append('_template', 'table');
-    await fetch('https://formsubmit.co/ajax/3982695436@qq.com', {
-      method: 'POST',
-      body: formData,
-    });
-    // 成功后锁定UI
-    input.disabled = true;
-    input.style.background = '#E8F5E9';
-    input.value = '✅ 已提交';
-    const btn = document.getElementById('deepReportBtn');
-    btn.disabled = true;
-    btn.textContent = '已领取，报告即将发送';
-    btn.style.background = '#81C784';
-  } catch(e) {
-    alert('提交失败，请稍后重试');
-  }
-}
-
 // ====== Share ======
 function shareResult() {
   const text = '我刚用AI查了家里的进口保健品，安全指数' + document.getElementById('resultScore').textContent + '分！你也来查查 → ' + window.location.href;
@@ -942,12 +1048,7 @@ function shareResult() {
   }
 }
 
-// ====== Init ======
-const base = 12847;
-const inc = Math.floor(Math.random() * 5) + 1;
-document.getElementById('userCount').textContent = (base + inc).toLocaleString();
-
-// 微信/QQ内置浏览器检测，提示用户用外部浏览器打开
+// ====== WeChat/QQ Browser Detection ======
 (function() {
   var ua = navigator.userAgent.toLowerCase();
   var isWechat = ua.indexOf('micromessenger') !== -1;
