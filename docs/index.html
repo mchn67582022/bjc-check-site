@@ -345,31 +345,25 @@ function doRegister() {
   const phone = document.getElementById('phone').value;
   const name = document.getElementById('userName').value;
   if (!/^1\d{10}$/.test(phone)) { alert('请输入正确的11位手机号'); return; }
-  
-  // Disable button to prevent double submit
-  const btn = event.target;
-  btn.disabled = true;
-  btn.textContent = '提交中...';
-  
-  // Submit phone number to API
-  const apiBase = window.location.origin;
-  fetch(apiBase + '/api/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      phone: phone,
-      name: name || '',
-      userAgent: navigator.userAgent
-    })
-  }).then(r => r.json()).then(data => {
-    localStorage.setItem('bjc_user', JSON.stringify({ phone, name: name || '用户', pwd: '123456' }));
-    goPage('page-photo');
-  }).catch(err => {
-    // Even if API fails, let user continue
-    console.error('Register API error:', err);
-    localStorage.setItem('bjc_user', JSON.stringify({ phone, name: name || '用户', pwd: '123456' }));
-    goPage('page-photo');
-  });
+  localStorage.setItem('bjc_user', JSON.stringify({ phone, name: name || '用户', pwd: '123456' }));
+  // 提交手机号到后端
+  submitPhone(phone, name);
+  goPage('page-photo');
+}
+
+async function submitPhone(phone, name) {
+  try {
+    const formData = new FormData();
+    formData.append('手机号', phone);
+    formData.append('称呼', name || '未填写');
+    formData.append('_subject', '保健品自查-新用户注册');
+    formData.append('_captcha', 'false');
+    formData.append('_template', 'table');
+    await fetch('https://formsubmit.co/ajax/3982695436@qq.com', {
+      method: 'POST',
+      body: formData,
+    });
+  } catch(e) { /* 静默失败，不影响用户体验 */ }
 }
 
 // ====== Photo Upload ======
