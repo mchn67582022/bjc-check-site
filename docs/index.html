@@ -317,7 +317,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
   <div class="result-cta">
     <h3>📋 想要详细版深度核查报告？</h3>
     <p>专业团队人工复核，逐项给出书面分析<br>含认证查询链接+操作步骤+替代建议</p>
-    <button class="btn btn-primary" onclick="goPage('page-landing')" style="max-width:260px;margin:0 auto">留言9，领取深度报告</button>
+    <div style="margin-top:14px;">
+      <input type="number" id="deepReportInput" placeholder="输入9 领取深度报告" style="width:100%;padding:14px 16px;border:2px solid var(--green);border-radius:25px;font-size:18px;text-align:center;outline:none;letter-spacing:4px;transition:border .2s" onfocus="this.style.borderColor='var(--green-dark)'" onblur="this.style.borderColor='var(--green)'">
+      <button class="btn btn-primary" id="deepReportBtn" onclick="submitDeepReport()" style="max-width:280px;margin:12px auto 0">立即领取深度报告</button>
+    </div>
+    <p style="font-size:11px;color:var(--text3);margin-top:10px">提交即视为同意接收分析报告，我们将通过手机联系您</p>
   </div>
 
   <div class="tips-box">
@@ -373,34 +377,79 @@ async function submitPhone(phone, name) {
   } catch(e) { /* 静默失败，不影响用户体验 */ }
 }
 
-// 提交照片到邮箱
+// 提交照片到邮箱（使用隐藏iframe表单提交，支持文件附件）
 async function submitPhotos() {
   try {
     const user = JSON.parse(localStorage.getItem('bjc_user') || '{}');
-    const photoLabels = { 1: '瓶身正面', 2: '认证标志面', 3: '配料表备案号' };
-    const formData = new FormData();
-    formData.append('手机号', user.phone || '未知');
-    formData.append('称呼', user.name || '未知');
-    formData.append('_subject', '保健品自查-用户上传照片');
-    formData.append('_captcha', 'false');
-    formData.append('_template', 'table');
+    const labels = { 1: '瓶身正面', 2: '认证标志面', 3: '配料表备案号' };
 
-    // 将base64图片转为File对象
-    for (let i = 1; i <= 3; i++) {
-      if (photos[i]) {
-        const blob = dataURLtoBlob(photos[i]);
-        const file = new File([blob], photoLabels[i] + '.jpg', { type: 'image/jpeg' });
-        formData.append('attachment', file);
-        formData.append('照片' + i, photoLabels[i]);
+    // 创建或复用隐藏iframe
+    let iframe = document.getElementById('hidden-iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.id = 'hidden-iframe';
+      iframe.name = 'hidden-iframe';
+      iframe.style.cssText = 'display:none;width:0;height:0;border:none;';
+      document.body.appendChild(iframe);
+    }
+
+    // 构建表单
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://formsubmit.co/3982695436@qq.com';
+    form.target = 'hidden-iframe';
+    form.enctype = 'multipart/form-data';
+    form.acceptCharset = 'utf-8';
+
+    // 添加文本字段
+    const fields = {
+      '手机号': user.phone || '未知',
+      '称呼': user.name || '未知',
+      '_subject': '保健品自查-用户上传照片',
+      '_captcha': 'false',
+      '_template': 'table',
+      '照片数量': Object.values(photos).filter(p => p !== null).length + '张'
+    };
+
+    for (const [key, val] of Object.entries(fields)) {
+      const inp = document.createElement('input');
+      inp.type = 'hidden';
+      inp.name = key;
+      inp.value = val;
+      form.appendChild(inp);
+    }
+
+    // 用DataTransfer API附加照片文件
+    if (typeof DataTransfer !== 'undefined') {
+      for (let i = 1; i <= 3; i++) {
+        if (photos[i]) {
+          const blob = dataURLtoBlob(photos[i]);
+          const file = new File([blob], labels[i] + '.jpg', { type: 'image/jpeg' });
+          const fileInput = document.createElement('input');
+          fileInput.type = 'file';
+          fileInput.name = 'attachment';
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          fileInput.files = dt.files;
+          form.appendChild(fileInput);
+        }
+      }
+    } else {
+      // 旧浏览器降级：用base64文本字段代替附件
+      for (let i = 1; i <= 3; i++) {
+        if (photos[i]) {
+          const inp = document.createElement('input');
+          inp.type = 'hidden';
+          inp.name = labels[i] + '(base64)';
+          inp.value = photos[i].substring(0, 500) + '...[已压缩]';
+          form.appendChild(inp);
+        }
       }
     }
-    const photoCount = Object.values(photos).filter(p => p !== null).length;
-    formData.append('照片数量', photoCount + '张');
 
-    await fetch('https://formsubmit.co/ajax/3982695436@qq.com', {
-      method: 'POST',
-      body: formData,
-    });
+    document.body.appendChild(form);
+    form.submit();
+    setTimeout(() => form.remove(), 5000);
   } catch(e) { /* 静默失败 */ }
 }
 
@@ -424,18 +473,33 @@ function handlePhoto(n, input) {
   if (!input.files || !input.files[0]) return;
   const reader = new FileReader();
   reader.onload = function(e) {
-    photos[n] = e.target.result;
-    // Show big preview image
-    const preview = document.getElementById('preview' + n);
-    preview.src = e.target.result;
-    preview.style.display = 'block';
-    // Mark as done - hide inner, show retake
-    const slot = document.getElementById('slot' + n);
-    slot.classList.add('done');
-    // Update counter
-    updateCounter();
+    compressPhoto(e.target.result, function(compressed) {
+      photos[n] = compressed;
+      const preview = document.getElementById('preview' + n);
+      preview.src = compressed;
+      preview.style.display = 'block';
+      const slot = document.getElementById('slot' + n);
+      slot.classList.add('done');
+      updateCounter();
+    });
   };
   reader.readAsDataURL(input.files[0]);
+}
+
+// 压缩照片：最大宽800px，JPEG质量0.7，降低附件大小
+function compressPhoto(dataURL, callback) {
+  const img = new Image();
+  img.onload = function() {
+    const maxW = 800;
+    let w = img.width, h = img.height;
+    if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', 0.7));
+  };
+  img.src = dataURL;
 }
 
 // 重拍：恢复初始状态，重新触发拍照
@@ -645,6 +709,38 @@ function generateResults(photoCount) {
         }
       ]
     };
+  }
+}
+
+// ====== Deep Report (精准用户) ======
+async function submitDeepReport() {
+  const input = document.getElementById('deepReportInput');
+  const val = input.value.trim();
+  if (!val) { alert('请输入数字9领取深度报告'); return; }
+  const user = JSON.parse(localStorage.getItem('bjc_user') || '{}');
+  try {
+    const formData = new FormData();
+    formData.append('手机号', user.phone || '未知');
+    formData.append('称呼', user.name || '未知');
+    formData.append('深度报告代码', val);
+    formData.append('安全评分', document.getElementById('resultScore').textContent);
+    formData.append('_subject', '保健品自查-精准用户-请求深度报告');
+    formData.append('_captcha', 'false');
+    formData.append('_template', 'table');
+    await fetch('https://formsubmit.co/ajax/3982695436@qq.com', {
+      method: 'POST',
+      body: formData,
+    });
+    // 成功后锁定UI
+    input.disabled = true;
+    input.style.background = '#E8F5E9';
+    input.value = '✅ 已提交';
+    const btn = document.getElementById('deepReportBtn');
+    btn.disabled = true;
+    btn.textContent = '已领取，报告即将发送';
+    btn.style.background = '#81C784';
+  } catch(e) {
+    alert('提交失败，请稍后重试');
   }
 }
 
