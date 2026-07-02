@@ -531,10 +531,11 @@ function updateCounter() {
 }
 
 // ====== AI Analysis (Real Coze Bot API) ======
-const COZE_BOT_ID = '7657927672755994659';
+const COZE_BOT_ID = '7657927021552975887';
 const COZE_API_BASE = 'https://api.coze.cn';
-// PAT令牌 - 需要在Coze后台生成，路径：个人中心→API管理→创建个人访问令牌（选chat+upload权限）
-const COZE_PAT = 'PASTE_YOUR_PAT_HERE';
+// API令牌 - 需要在Coze后台生成PAT替换，路径：个人中心→API管理→创建个人访问令牌（选chat+upload权限）
+// 当前使用session token，有效期有限，请尽快替换为pat_xxxx格式的正式令牌
+const COZE_PAT = 'sat_stHaUmZPUCh5coBFmDIw0PZQe9eB1i91o3jPKO3MPo0cepS0YON1pdbEWWQU2ii1';
 
 function startAnalysis() {
   // 提交照片和手机号到邮箱（同时进行）
@@ -665,14 +666,28 @@ async function callCozeBot() {
 
     // 5. 解析结果
     if (result) {
+      // 去除markdown代码块包裹（```json ... ```）
+      let cleaned = result.trim();
+      if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?\s*```$/, '');
+      }
       // 尝试从回答中提取JSON
-      const jsonMatch = result.match(/\{[\s\S]*\}/);
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
           const parsed = JSON.parse(jsonMatch[0]);
           showResultFromAPI(parsed);
           return;
-        } catch(e) { /* JSON解析失败，走降级 */ }
+        } catch(e) {
+          console.warn('JSON解析失败，尝试修复:', e);
+          // 尝试修复常见问题：尾逗号、注释
+          try {
+            let fixed = jsonMatch[0].replace(/,\s*([}\]])/g, '$1').replace(/\/\/.*$/gm, '');
+            const parsed = JSON.parse(fixed);
+            showResultFromAPI(parsed);
+            return;
+          } catch(e2) { /* 修复失败，走降级 */ }
+        }
       }
     }
     // 降级：显示Bot的文本回答
