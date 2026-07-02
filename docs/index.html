@@ -530,50 +530,223 @@ function updateCounter() {
   }
 }
 
-// ====== AI Analysis Animation ======
+// ====== AI Analysis (Real Coze Bot API) ======
+const COZE_BOT_ID = '7657927672755994659';
+const COZE_API_BASE = 'https://api.coze.cn';
+// PAT令牌 - 需要在Coze后台生成，路径：个人中心→API管理→创建个人访问令牌（选chat+upload权限）
+const COZE_PAT = 'PASTE_YOUR_PAT_HERE';
+
 function startAnalysis() {
-  // 提交照片和手机号到邮箱
+  // 提交照片和手机号到邮箱（同时进行）
   submitPhotos();
   goPage('page-analyzing');
-  const steps = ['as1','as2','as3','as4','as5'];
-  const durations = [2000, 2500, 2000, 2500, 1500]; // ms per step
-  let totalDuration = durations.reduce((a,b) => a+b, 0);
-  let elapsed = 0;
 
-  // Progress bar animation
-  const bar = document.getElementById('analyzeBar');
-  let progressInterval = setInterval(() => {
-    elapsed += 100;
-    const pct = Math.min(elapsed / totalDuration * 100, 98);
-    bar.style.width = pct + '%';
-  }, 100);
-
-  // Step transitions
-  let delay = 0;
-  steps.forEach((stepId, i) => {
-    setTimeout(() => {
-      // Mark previous as done
-      if (i > 0) {
-        document.getElementById(steps[i-1]).classList.remove('active');
-        document.getElementById(steps[i-1]).classList.add('done');
-      }
-      // Mark current as active
-      if (i > 0) document.getElementById(stepId).classList.add('active');
-    }, delay);
-    delay += durations[i];
-  });
-
-  // Finish
-  setTimeout(() => {
-    clearInterval(progressInterval);
-    bar.style.width = '100%';
-    document.getElementById(steps[4]).classList.remove('active');
-    document.getElementById(steps[4]).classList.add('done');
-    setTimeout(() => showResult(), 500);
-  }, totalDuration);
+  // 调用Coze Bot API进行真实AI分析
+  callCozeBot();
 }
 
-// ====== Result Generation ======
+async function callCozeBot() {
+  const steps = ['as1','as2','as3','as4','as5'];
+  const bar = document.getElementById('analyzeBar');
+  let stepIndex = 0;
+
+  // 动画：逐步高亮
+  function advanceStep() {
+    if (stepIndex > 0) {
+      document.getElementById(steps[stepIndex-1]).classList.remove('active');
+      document.getElementById(steps[stepIndex-1]).classList.add('done');
+    }
+    if (stepIndex < steps.length) {
+      document.getElementById(steps[stepIndex]).classList.add('active');
+    }
+    stepIndex++;
+  }
+  advanceStep(); // 步骤1高亮
+  let progressVal = 0;
+  const progressInterval = setInterval(() => {
+    progressVal = Math.min(progressVal + 0.5, 90);
+    bar.style.width = progressVal + '%';
+  }, 300);
+
+  try {
+    // 1. 上传照片到Coze文件系统
+    const fileIds = [];
+    const labels = { 1: '瓶身正面', 2: '认证标志面', 3: '配料表备案号' };
+    for (let i = 1; i <= 3; i++) {
+      if (photos[i]) {
+        advanceStep(); // 步骤2/3
+        const blob = dataURLtoBlob(photos[i]);
+        const file = new File([blob], labels[i] + '.jpg', { type: 'image/jpeg' });
+        const uploadForm = new FormData();
+        uploadForm.append('file', file);
+        const uploadResp = await fetch(COZE_API_BASE + '/v1/files/upload', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + COZE_PAT },
+          body: uploadForm
+        });
+        const uploadData = await uploadResp.json();
+        if (uploadData.code === 0 && uploadData.data) {
+          fileIds.push(uploadData.data.id);
+        }
+      }
+    }
+
+    // 2. 构建多模态消息
+    advanceStep(); // 步骤4
+    const objectParts = [];
+    objectParts.push({ type: 'text', text: '请分析这些保健品照片，识别瓶身信息，联网核查认证真伪，按JSON格式输出结果。' });
+    fileIds.forEach(fid => {
+      objectParts.push({ type: 'image', file_id: fid });
+    });
+
+    // 3. 调用Coze Chat API（非流式）
+    advanceStep(); // 步骤5
+    const chatResp = await fetch(COZE_API_BASE + '/v3/chat', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + COZE_PAT,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        bot_id: COZE_BOT_ID,
+        user_id: 'user_' + Date.now(),
+        stream: false,
+        auto_save_history: true,
+        additional_messages: [{
+          role: 'user',
+          content: JSON.stringify(objectParts),
+          content_type: 'object_string'
+        }]
+      })
+    });
+    const chatData = await chatResp.json();
+
+    if (chatData.code !== 0) {
+      throw new Error('Chat API错误: ' + (chatData.msg || JSON.stringify(chatData)));
+    }
+
+    const chatId = chatData.data.id;
+    const convId = chatData.data.conversation_id;
+
+    // 4. 轮询等待完成
+    let attempts = 0;
+    let result = null;
+    while (attempts < 60) {
+      await new Promise(r => setTimeout(r, 2000));
+      const retrieveResp = await fetch(
+        COZE_API_BASE + '/v3/chat/retrieve?conversation_id=' + convId + '&chat_id=' + chatId,
+        { headers: { 'Authorization': 'Bearer ' + COZE_PAT } }
+      );
+      const retrieveData = await retrieveResp.json();
+      if (retrieveData.data && retrieveData.data.status === 'completed') {
+        // 获取回答消息
+        const msgResp = await fetch(
+          COZE_API_BASE + '/v3/chat/message/list?conversation_id=' + convId + '&chat_id=' + chatId,
+          { headers: { 'Authorization': 'Bearer ' + COZE_PAT } }
+        );
+        const msgData = await msgResp.json();
+        if (msgData.data) {
+          const answer = msgData.data.find(m => m.type === 'answer' && m.role === 'assistant');
+          if (answer) result = answer.content;
+        }
+        break;
+      } else if (retrieveData.data && retrieveData.data.status === 'failed') {
+        throw new Error('Bot处理失败: ' + (retrieveData.data.last_error?.msg || '未知错误'));
+      }
+      attempts++;
+    }
+
+    clearInterval(progressInterval);
+    bar.style.width = '100%';
+    steps.forEach(s => {
+      document.getElementById(s).classList.remove('active');
+      document.getElementById(s).classList.add('done');
+    });
+
+    // 5. 解析结果
+    if (result) {
+      // 尝试从回答中提取JSON
+      const jsonMatch = result.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[0]);
+          showResultFromAPI(parsed);
+          return;
+        } catch(e) { /* JSON解析失败，走降级 */ }
+      }
+    }
+    // 降级：显示Bot的文本回答
+    showResultFallback(result || 'AI分析暂无结果，请稍后重试');
+
+  } catch(e) {
+    clearInterval(progressInterval);
+    bar.style.width = '100%';
+    console.error('AI分析失败:', e);
+    // 降级到本地模拟结果
+    const photoCount = Object.values(photos).filter(p => p !== null).length;
+    showResult();
+  }
+}
+
+// ====== Result from Coze Bot API ======
+function showResultFromAPI(data) {
+  // 更新评分圆环
+  const circle = document.getElementById('resultCircle');
+  circle.className = 'result-circle ' + (data.level || 'caution');
+  document.getElementById('resultScore').textContent = data.score || '--';
+  document.getElementById('resultLabel').textContent = '安全指数';
+  document.getElementById('resultTitle').textContent = data.title || '分析完成';
+  document.getElementById('resultSubtitle').textContent = data.subtitle || '';
+
+  // 产品信息条
+  let html = '';
+  if (data.product_name || data.brand || data.origin) {
+    html += '<div class="card" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">';
+    if (data.brand) html += '<div style="flex:1;min-width:80px"><div style="font-size:12px;color:#999">品牌</div><div style="font-weight:bold">' + escHtml(data.brand) + '</div></div>';
+    if (data.product_name) html += '<div style="flex:2;min-width:120px"><div style="font-size:12px;color:#999">产品</div><div style="font-weight:bold">' + escHtml(data.product_name) + '</div></div>';
+    if (data.origin) html += '<div style="flex:1;min-width:60px"><div style="font-size:12px;color:#999">产地</div><div style="font-weight:bold">' + escHtml(data.origin) + '</div></div>';
+    html += '</div>';
+  }
+
+  // 风险分节
+  (data.sections || []).forEach(sec => {
+    const titleClass = sec.level === 'red' ? 'red' : sec.level === 'orange' ? 'orange' : '';
+    html += '<div class="result-section">';
+    html += '<div class="result-section-title ' + titleClass + '">' + escHtml(sec.title) + '</div>';
+    html += '<div class="card">';
+    (sec.items || []).forEach(item => {
+      html += '<div class="result-item">';
+      html += '<div class="result-dot ' + item.dot + '"></div>';
+      html += '<p>' + escHtml(item.text);
+      if (item.tag && item.tagText) html += ' <span class="tag tag-' + item.tag + '">' + escHtml(item.tagText) + '</span>';
+      html += '</p></div>';
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('resultContent').innerHTML = html;
+  goPage('page-result');
+}
+
+// Bot返回文本时的降级显示
+function showResultFallback(text) {
+  document.getElementById('resultCircle').className = 'result-circle caution';
+  document.getElementById('resultScore').textContent = '?';
+  document.getElementById('resultLabel').textContent = 'AI分析';
+  document.getElementById('resultTitle').textContent = 'AI分析结果';
+  document.getElementById('resultSubtitle').textContent = '以下为AI分析详情';
+  document.getElementById('resultContent').innerHTML = '<div class="card" style="white-space:pre-wrap;font-size:15px;line-height:1.8">' + escHtml(text) + '</div>';
+  goPage('page-result');
+}
+
+// HTML转义
+function escHtml(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ====== Result Generation (Local Fallback) ======
 function showResult() {
   const photoCount = Object.values(photos).filter(p => p !== null).length;
   
