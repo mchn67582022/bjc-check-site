@@ -707,7 +707,7 @@ async function callCozeBot() {
       objectParts.push({ type: 'image', file_id: fid });
     });
 
-    // 3. 调用Coze Chat API（非流式）
+    // 3. 调用Coze Chat API（流式模式 - 无需message list权限）
     advanceStep(); // 步骤5
     const chatResp = await fetch(COZE_API_BASE + '/v3/chat', {
       method: 'POST',
@@ -718,7 +718,7 @@ async function callCozeBot() {
       body: JSON.stringify({
         bot_id: COZE_BOT_ID,
         user_id: 'user_' + Date.now(),
-        stream: false,
+        stream: true,
         auto_save_history: true,
         additional_messages: [{
           role: 'user',
@@ -727,40 +727,53 @@ async function callCozeBot() {
         }]
       })
     });
-    const chatData = await chatResp.json();
 
-    if (chatData.code !== 0) {
-      throw new Error('Chat API错误: ' + (chatData.msg || JSON.stringify(chatData)));
+    if (!chatResp.ok) {
+      throw new Error('Chat API HTTP错误: ' + chatResp.status);
     }
 
-    const chatId = chatData.data.id;
-    const convId = chatData.data.conversation_id;
-
-    // 4. 轮询等待完成
-    let attempts = 0;
+    // 4. 从流式响应中提取answer内容
     let result = null;
-    while (attempts < 60) {
-      await new Promise(r => setTimeout(r, 2000));
-      const retrieveResp = await fetch(
-        COZE_API_BASE + '/v3/chat/retrieve?conversation_id=' + convId + '&chat_id=' + chatId,
-        { headers: { 'Authorization': 'Bearer ' + COZE_PAT } }
-      );
-      const retrieveData = await retrieveResp.json();
-      if (retrieveData.data && retrieveData.data.status === 'completed') {
-        const msgResp = await fetch(
-          COZE_API_BASE + '/v3/chat/message/list?conversation_id=' + convId + '&chat_id=' + chatId,
-          { headers: { 'Authorization': 'Bearer ' + COZE_PAT } }
-        );
-        const msgData = await msgResp.json();
-        if (msgData.data) {
-          const answer = msgData.data.find(m => m.type === 'answer' && m.role === 'assistant');
-          if (answer) result = answer.content;
+    const reader = chatResp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let currentEvent = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('event:')) {
+          currentEvent = trimmed.slice(6).trim();
+        } else if (trimmed.startsWith('data:')) {
+          const dataStr = trimmed.slice(5).trim();
+          if (!dataStr || dataStr === '"[DONE]"') continue;
+          try {
+            const evt = JSON.parse(dataStr);
+            // conversation.message.completed 含完整answer，优先取
+            if (currentEvent === 'conversation.message.completed' && evt.type === 'answer' && evt.content) {
+              result = evt.content;
+            }
+            // delta事件累积（completed会覆盖，所以先累积再覆盖是安全的）
+            else if (currentEvent === 'conversation.message.delta' && evt.type === 'answer' && evt.content) {
+              result = (result || '') + evt.content;
+            }
+            // 错误检测
+            if (evt.last_error && evt.last_error.code !== 0) {
+              throw new Error('Bot处理失败: ' + (evt.last_error.msg || '未知错误'));
+            }
+          } catch (parseErr) {
+            if (parseErr.message.startsWith('Bot处理失败')) throw parseErr;
+          }
+          currentEvent = '';
         }
-        break;
-      } else if (retrieveData.data && retrieveData.data.status === 'failed') {
-        throw new Error('Bot处理失败: ' + (retrieveData.data.last_error?.msg || '未知错误'));
       }
-      attempts++;
     }
 
     clearInterval(progressInterval);
