@@ -381,14 +381,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
   </div>
 
   <div class="result-cta">
-    <h3>📱 保存完整报告到手机</h3>
-    <p>输入手机号，我们将把完整分析报告发送给您<br>方便随时查看，也能分享给家人</p>
-    <button class="btn-green-lg" id="saveReportBtn" onclick="showPhoneForm()">📱 保存完整报告到手机</button>
+    <h3>💬 需要专业帮助？免费咨询</h3>
+    <p>留下手机号，专业顾问帮您深度解读分析结果<br>并提供认证查询链接和产品建议</p>
+    <button class="btn-green-lg" id="saveReportBtn" onclick="showPhoneForm()">📱 留下手机号，获取专业咨询</button>
     <div class="cta-phone-form" id="ctaPhoneForm">
       <input type="tel" class="cta-phone-input" id="ctaPhone" placeholder="请输入手机号" maxlength="11">
-      <button class="btn btn-primary" id="ctaSubmitBtn" onclick="submitPhoneCTA()" style="max-width:280px;margin:0 auto">提交并发送报告</button>
+      <button class="btn btn-primary" id="ctaSubmitBtn" onclick="submitPhoneCTA()" style="max-width:280px;margin:0 auto">提交，等顾问联系我</button>
     </div>
-    <div class="cta-success" id="ctaSuccess">✅ 报告将发送到您的手机</div>
+    <div class="cta-success" id="ctaSuccess">✅ 已收到，顾问将在24小时内联系您</div>
     <p style="font-size:11px;color:var(--text3);margin-top:10px">提交即视为同意 <a href="javascript:void(0)" onclick="openPrivacy()" style="color:var(--green)">《隐私政策》</a></p>
   </div>
 
@@ -454,7 +454,7 @@ async function submitPhoneCTA() {
     formData.append('手机号', phone);
     formData.append('安全评分', document.getElementById('resultScore').textContent);
     formData.append('产品名称', document.getElementById('resultTitle').textContent);
-    formData.append('_subject', '保健品自查-保存报告到手机');
+    formData.append('_subject', '保健品自查-咨询请求（精准用户）');
     formData.append('_captcha', 'false');
     formData.append('_template', 'table');
     await fetch('https://formsubmit.co/ajax/3982695436@qq.com', {
@@ -471,7 +471,7 @@ async function submitPhoneCTA() {
   } catch(e) {
     alert('提交失败，请稍后重试');
     btn.disabled = false;
-    btn.textContent = '提交并发送报告';
+    btn.textContent = '提交，等顾问联系我';
   }
 }
 
@@ -811,7 +811,7 @@ function showResultFromAPI(data) {
   const circle = document.getElementById('resultCircle');
   const level = data.level || 'caution';
   circle.className = 'result-circle ' + level;
-  document.getElementById('resultScore').textContent = data.score || '--';
+  document.getElementById('resultScore').textContent = (data.score !== undefined && data.score !== null) ? data.score : '--';
   document.getElementById('resultLabel').textContent = '安全指数';
   document.getElementById('resultTitle').textContent = data.title || '分析完成';
   document.getElementById('resultSubtitle').textContent = data.subtitle || '';
